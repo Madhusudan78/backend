@@ -31,10 +31,14 @@ def predict_new_text(text, c_vectorizer, model):
     # Predict the category index
     predicted_index = model.predict(text_vector)[0]
 
+    # Ensure the predicted index is an int before mapping it
+    predicted_index = int(predicted_index)
+
     # Map the predicted index to the category label
     predicted_label = label_mapping[predicted_index]
 
     return {predicted_label: predicted_index}
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
