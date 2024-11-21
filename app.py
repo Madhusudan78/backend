@@ -2,9 +2,9 @@ from flask import Flask, request, jsonify
 import joblib
 from flask_cors import CORS
 
-CORS(app)
 
 app = Flask(__name__)
+CORS(app)
 
 # Load the trained model and vectorizer
 model = joblib.load('xgb_model.pkl')  # Path to your saved XGBoost model
