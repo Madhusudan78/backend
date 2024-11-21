@@ -38,18 +38,23 @@ def predict_new_text(text, c_vectorizer, model):
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    """
+    API endpoint to predict the mental health category of input text.
+    """
     try:
-        # Get the input text from the request
+        # Parse the input JSON
         data = request.json
-        text = data['text']
+        if not data or 'text' not in data:
+            return jsonify({"error": "Invalid input. 'text' field is required."}), 400
 
-        # Get prediction from the model
+        text = data['text']
+        
+        # Predict the category
         prediction = predict_new_text(text, vectorizer, model)
 
-        # Return the prediction result
-        return jsonify(prediction)
+        return jsonify({"success": True, "prediction": prediction}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({"success": False, "error": str(e)}), 500
 
 # Therapist data from the provided JSON
 therapists = [
