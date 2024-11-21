@@ -125,6 +125,25 @@ def get_therapists():
         return jsonify({'error': 'Invalid query parameters'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/recommendations', methods=['GET'])
+def get_recommendations():
+    sentiment = request.args.get('sentiment', None)
+    if not sentiment:
+        return jsonify({"error": "Sentiment query parameter is required"}), 400
+
+    try:
+        youtube_api_key = 'AIzaSyCCwMyjfjjIuBTvoNqYdc8mSqVPXVvWEN8'
+        youtube_url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={sentiment}&key={youtube_api_key}&type=video&maxResults=5"
+
+        response = requests.get(youtube_url)
+        if response.status_code == 200:
+            data = response.json()
+            return jsonify({"success": True, "videos": data['items']}), 200
+        else:
+            return jsonify({"success": False, "error": response.json()}), response.status_code
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
         
 @app.route('/')
 def index():
