@@ -133,17 +133,29 @@ def get_recommendations():
         return jsonify({"error": "Sentiment query parameter is required"}), 400
 
     try:
-        youtube_api_key = 'AIzaSyCCwMyjfjjIuBTvoNqYdc8mSqVPXVvWEN8'
-        youtube_url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={sentiment}&key={youtube_api_key}&type=video&maxResults=5"
+        youtube_api_key = os.getenv('YOUTUBE_API_KEY')  # Load API key from environment variable
+        youtube_url = (
+            f"https://www.googleapis.com/youtube/v3/search"
+            f"?part=snippet&q={sentiment}&key={youtube_api_key}&type=video&maxResults=5"
+        )
 
         response = requests.get(youtube_url)
         if response.status_code == 200:
             data = response.json()
-            return jsonify({"success": True, "videos": data['items']}), 200
+            videos = [
+                {
+                    "videoId": item["id"]["videoId"],
+                    "title": item["snippet"]["title"],
+                    "description": item["snippet"]["description"],
+                    "thumbnail": item["snippet"]["thumbnails"]["high"]["url"]
+                }
+                for item in data.get("items", []) if "videoId" in item.get("id", {})
+            ]
+            return jsonify({"success": True, "videos": videos}), 200
         else:
             return jsonify({"success": False, "error": response.json()}), response.status_code
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        return jsonify({"success": False, "error": "An error occurred while fetching videos."}), 500
         
 @app.route('/')
 def index():
