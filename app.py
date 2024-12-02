@@ -141,8 +141,12 @@ def get_recommendations():
             f"https://www.googleapis.com/youtube/v3/search"
             f"?part=snippet&q={search_query}&key={youtube_api_key}&type=video&maxResults=5"
         )
-
+        print(f"Constructed YouTube URL: {youtube_url}")  # Log the URL
+        
         response = requests.get(youtube_url)
+        print(f"Response Status Code: {response.status_code}")  # Log status code
+        print(f"Response Content: {response.text}")  # Log the response content
+
         if response.status_code == 200:
             data = response.json()
             videos = [
@@ -158,7 +162,9 @@ def get_recommendations():
         else:
             return jsonify({"success": False, "error": response.json()}), response.status_code
     except Exception as e:
+        print(f"Error: {str(e)}")  # Log the exception
         return jsonify({"success": False, "error": "An error occurred while fetching videos."}), 500
+
 
 @app.route('/')
 def index():
