@@ -129,14 +129,17 @@ def get_therapists():
 @app.route('/recommendations', methods=['GET'])
 def get_recommendations():
     sentiment = request.args.get('sentiment', None)
-    if not sentiment:
-        return jsonify({"error": "Sentiment query parameter is required"}), 400
+    mapped_phrase = request.args.get('mappedPhrase', None)
+
+    if not sentiment or not mapped_phrase:
+        return jsonify({"error": "Sentiment and mappedPhrase query parameters are required"}), 400
 
     try:
-        youtube_api_key = os.getenv('YOUTUBE_API_KEY')  # Load API key from environment variable
+        youtube_api_key = os.getenv('YOUTUBE_API_KEY')  # Load API key
+        search_query = f"{sentiment} {mapped_phrase}"
         youtube_url = (
             f"https://www.googleapis.com/youtube/v3/search"
-            f"?part=snippet&q={sentiment}&key={youtube_api_key}&type=video&maxResults=5"
+            f"?part=snippet&q={search_query}&key={youtube_api_key}&type=video&maxResults=5"
         )
 
         response = requests.get(youtube_url)
@@ -156,7 +159,7 @@ def get_recommendations():
             return jsonify({"success": False, "error": response.json()}), response.status_code
     except Exception as e:
         return jsonify({"success": False, "error": "An error occurred while fetching videos."}), 500
-        
+
 @app.route('/')
 def index():
     return "Welcome to the mental health app"
